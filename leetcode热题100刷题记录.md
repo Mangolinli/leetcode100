@@ -491,4 +491,282 @@ public:
 };
 ```
 
-## 11.  
+## 11.  [160. 相交链表](https://leetcode.cn/problems/intersection-of-two-linked-lists/)
++ 题目：
+> 	给你两个单链表的头节点 `headA` 和 `headB` ，请你找出并返回两个单链表相交的起始节点。如果两个链表不存在相交节点，返回 `null` 。
+	图示两个链表在节点 `c1` 开始相交**：**
+	[![](https://assets.leetcode-cn.com/aliyun-lc-upload/uploads/2018/12/14/160_statement.png)](https://assets.leetcode-cn.com/aliyun-lc-upload/uploads/2018/12/14/160_statement.png)
+	题目数据 **保证** 整个链式结构中不存在环。
+	**注意**，函数返回结果后，链表必须 **保持其原始结构** 。
+
++ **自定义评测：**
++ **评测系统** 的输入如下（你设计的程序 **不适用** 此输入）：
+	- `intersectVal` - 相交的起始节点的值。如果不存在相交节点，这一值为 `0`
+	- `listA` - 第一个链表
+	- `listB` - 第二个链表
+	- `skipA` - 在 `listA` 中（从头节点开始）跳到交叉节点的节点数
+	- `skipB` - 在 `listB` 中（从头节点开始）跳到交叉节点的节点数
+评测系统将根据这些输入创建链式数据结构，并将两个头节点 `headA` 和 `headB` 传递给你的程序。如果程序能够正确返回相交节点，那么你的解决方案将被 **视作正确答案** 。
+
++ 思路
+	+ 使用哈希表和俩个指针遍历的方法
+	+ 采用双指针，利用a+b=b+a的办法使得最后一定会相同，为null则不相交，不会空则相交。
+	+ 先遍历知道链表长度差，先将长的遍历长度差的距离再一起遍历，这样也一定会相同。
++ 题解1：
+```cpp
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode(int x) : val(x), next(NULL) {}
+ * };
+ */
+class Solution {
+public:
+    ListNode *getIntersectionNode(ListNode *headA, ListNode *headB) {
+        map<ListNode*,int> mp;
+        while(headA != NULL && headB != NULL){
+            if(headA == headB){
+                return headA;
+            }
+            if(mp.find(headA) != mp.end()){
+                return headA;
+            }
+            if(mp.find(headB) != mp.end()){
+                return headB;
+            }
+            mp[headA] = headA->val;
+            mp[headB] = headB->val;
+            headA = headA->next;
+            headB = headB->next;
+        }
+        while(headA != NULL){
+            if(mp.find(headA) != mp.end()){
+                return headA;
+            }
+            headA = headA->next;
+        }
+        while(headB != NULL){
+            if(mp.find(headB) != mp.end()){
+                return headB;
+            }
+            headB = headB->next;
+        }
+        return NULL;
+    }
+};
+```
++ 题解2
+```cpp
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode(int x) : val(x), next(NULL) {}
+ * };
+ */
+class Solution {
+public:
+    ListNode *getIntersectionNode(ListNode *headA, ListNode *headB) {
+       if(headA == NULL || headB == NULL)return NULL;
+       ListNode* pa = headA;
+       ListNode* pb = headB;
+       while(pa != pb){
+        pa = pa == NULL ? headB : pa->next;
+        pb = pb == NULL ? headA : pb->next;
+       }
+       return pa;
+    }
+};
+```
++ 题解三
+```cpp
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode(int x) : val(x), next(NULL) {}
+ * };
+ */
+class Solution {
+public:
+    ListNode *getIntersectionNode(ListNode *headA, ListNode *headB) {
+       int l1 = 0,l2 = 0,diff = 0;
+       ListNode* p1 = headA;
+       ListNode* p2 = headB;
+       while(p1 != NULL){
+        l1++;
+        p1 = p1->next;
+       }
+       while(p2 != NULL){
+        l2++;
+        p2 = p2->next;
+       }
+       if(l1 < l2){
+            p1 = headB;
+            p2 = headA;
+            diff = l2-l1;
+       }else{
+            p1 = headA;
+            p2 = headB;
+            diff = l1-l2;
+       }
+       for(int i = 0; i < diff;i++){
+            p1 = p1->next;
+       }
+       while(p1 != NULL && p2 != NULL){
+        if(p1 == p2){
+            return p1;
+        }
+        p1 = p1->next;
+        p2 = p2->next;
+       }
+       return NULL;
+    }
+};
+```
+
+## 12.  [206. 反转链表](https://leetcode.cn/problems/reverse-linked-list/)
++ 题目：
+>	给你单链表的头节点 `head` ，请你反转链表，并返回反转后的链表。
+
++ 思路
+	+ 使用头指针和一个后指针，一个前指针，遍历直接反转。
++ 题解
+```cpp
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode() : val(0), next(nullptr) {}
+ *     ListNode(int x) : val(x), next(nullptr) {}
+ *     ListNode(int x, ListNode *next) : val(x), next(next) {}
+ * };
+ */
+class Solution {
+public:
+    ListNode* reverseList(ListNode* head) {
+        if(head == nullptr|| head->next == nullptr)return head;
+        ListNode* currentNode = head->next;
+        ListNode* preNode = head;
+        head->next = nullptr;
+        while(currentNode != nullptr){
+            preNode = currentNode;
+            currentNode = currentNode->next;
+            preNode->next = head;
+            head = preNode;
+        }
+        return head;
+    }
+};
+```
+## 13.  [234. 回文链表](https://leetcode.cn/problems/palindrome-linked-list/)
++ 题目
+>	给你一个单链表的头节点 `head` ，请你判断该链表是否为回文链表
+	如果是，返回 `true` ；否则，返回 `false` 。
++ 思路
+	+ 思路1：直接创建一个新的列表来存储反转以后的列表，在对比是否相等，反转以后和源列表一样就是回文链表。（当然也可以使用数组代替列表）
+	+ 思路2：使用快慢指针找到链表中间位置，将后面的链表反转以后再比较前后是否相等。
++ 题解1：
+```cpp
+/**
+ * Definition for singly-linked list.
+ * struct ListNode {
+ *     int val;
+ *     ListNode *next;
+ *     ListNode() : val(0), next(nullptr) {}
+ *     ListNode(int x) : val(x), next(nullptr) {}
+ *     ListNode(int x, ListNode *next) : val(x), next(next) {}
+ * };
+ */
+class Solution {
+public:
+    bool isPalindrome(ListNode* head) {
+        if(head == nullptr)return head;
+        ListNode* rerverseNode;
+        ListNode* currentNode = head;
+        while(currentNode != nullptr){
+            ListNode* newNode = new(ListNode);
+            newNode->val = currentNode->val;
+            newNode->next = rerverseNode;
+            rerverseNode = newNode;
+            currentNode = currentNode->next;
+        }
+        while(head != nullptr){
+            if(head->val != rerverseNode->val)return false;
+            head = head->next;
+            rerverseNode = rerverseNode->next;
+        }
+        return true;
+    }
+};
+```
+
+```cpp
+class Solution { 
+public: 
+	bool isPalindrome(ListNode* head) { 
+		if(head == nullptr)return head; 
+		ListNode* ptr = head; 
+		vector<int> num; 
+		while(ptr != nullptr){ 
+			num.push_back(ptr->val); 
+			ptr = ptr->next; 
+		} 
+		int n = num.size() - 1;
+		while(head != nullptr){ 
+			if(head->val != num[n])return false; 
+			n--; 
+			head = head->next; 
+		} 
+		return true; 
+	} 
+};
+```
++ 题解2
+```cpp
+class Solution {
+public:
+    bool isPalindrome(ListNode* head) {
+        // 如果链表为空或只有一个节点，直接返回true
+        if (!head || !head->next) return true;
+
+        // 使用快慢指针找到中间节点
+        ListNode* slow = head;
+        ListNode* fast = head;
+        while (fast->next && fast->next->next) {
+            slow = slow->next;
+            fast = fast->next->next;
+        }
+
+        // 反转后半部分链表
+        ListNode* prev = nullptr;
+        ListNode* curr = slow->next;
+        while (curr) {
+            ListNode* nextTemp = curr->next;
+            curr->next = prev;
+            prev = curr;
+            curr = nextTemp;
+        }
+
+        // 比较前半部分和反转后的后半部分
+        ListNode* firstHalf = head;
+        ListNode* secondHalf = prev;
+        while (secondHalf) {
+            if (firstHalf->val != secondHalf->val) {
+                return false;
+            }
+            firstHalf = firstHalf->next;
+            secondHalf = secondHalf->next;
+        }
+
+        return true;
+    }
+};
+```
+
+## 14. 
