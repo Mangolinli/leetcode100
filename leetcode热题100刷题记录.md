@@ -254,7 +254,7 @@ public:
         return ret;
     }
 };
-```
+ ```
 + 题解3
 ```cpp
 class Solution {
@@ -506,7 +506,7 @@ public:
 	- `listB` - 第二个链表
 	- `skipA` - 在 `listA` 中（从头节点开始）跳到交叉节点的节点数
 	- `skipB` - 在 `listB` 中（从头节点开始）跳到交叉节点的节点数
-评测系统将根据这些输入创建链式数据结构，并将两个头节点 `headA` 和 `headB` 传递给你的程序。如果程序能够正确返回相交节点，那么你的解决方案将被 **视作正确答案** 。
+	评测系统将根据这些输入创建链式数据结构，并将两个头节点 `headA` 和 `headB` 传递给你的程序。如果程序能够正确返回相交节点，那么你的解决方案将被 **视作正确答案** 。
 
 + 思路
 	+ 使用哈希表和俩个指针遍历的方法
@@ -667,6 +667,7 @@ public:
 ## 13.  [234. 回文链表](https://leetcode.cn/problems/palindrome-linked-list/)
 + 题目
 >	给你一个单链表的头节点 `head` ，请你判断该链表是否为回文链表
+
 	如果是，返回 `true` ；否则，返回 `false` 。
 + 思路
 	+ 思路1：直接创建一个新的列表来存储反转以后的列表，在对比是否相等，反转以后和源列表一样就是回文链表。（当然也可以使用数组代替列表）
@@ -769,4 +770,443 @@ public:
 };
 ```
 
-## 14. 
+## 14.[876. 链表的中间结点](https://leetcode.cn/problems/middle-of-the-linked-list/)
+
++ 题目：
+
+> ​	给你单链表的头结点 `head` ，请你找出并返回链表的中间结点。如果有两个中间结点，则返回第二个中间结点。
+
++ 思路
+  + 使用快慢双指针，但是需要注意判断快指针后一位和俩位是否为空，不用判断慢指针。
+
++ 题解
+
+```cpp
+class Solution {
+public:
+    ListNode* middleNode(ListNode* head) {
+        if(head->next == nullptr){
+            return head;
+        }
+        ListNode* slow = head;
+        ListNode* fast = head;
+        while(fast != nullptr && fast->next != nullptr){
+            slow = slow->next;
+            fast = fast->next->next;
+        }
+        return slow;
+    }
+};
+```
+
+## 15. [LCR 021. 删除链表的倒数第 N 个结点](https://leetcode.cn/problems/SLwz0R/)
++ 题目
+>		给定一个链表，删除链表的倒数第 `n` 个结点，并且返回链表的头结点.
+>		
+>	![image-20240927120442381](leetcode%E7%83%AD%E9%A2%98100%E5%88%B7%E9%A2%98%E8%AE%B0%E5%BD%95.assets/image-20240927120442381-17274098846841.png)
+
++ 思路
+  + 解法一就是使用栈，将链表遍历存储到栈里面，然后出栈。
+  + 解法二就是遍历链表长度，然后遍历到length-n删除。
+  + 俩个相同之处就是：都需要使用new创建一个新的节点，用来解决删除末尾和头节点的问题。
++ 题解1
+
+```cpp
+class Solution {
+public:
+    ListNode* removeNthFromEnd(ListNode* head, int n) {
+        ListNode* dummy = new ListNode(0, head);
+        stack<ListNode*> stk;
+        ListNode* cur = dummy;
+        while (cur) {
+            stk.push(cur);
+            cur = cur->next;
+        }
+        for (int i = 0; i < n; ++i) {
+            stk.pop();
+        }
+        ListNode* prev = stk.top();
+        prev->next = prev->next->next;
+        ListNode* ans = dummy->next;
+        delete dummy;
+        return ans;
+    }
+};
+```
+
++ 题解2
+
+```cpp
+class Solution {
+public:
+    int getLength(ListNode* head) {
+        int length = 0;
+        while (head) {
+            ++length;
+            head = head->next;
+        }
+        return length;
+    }
+
+    ListNode* removeNthFromEnd(ListNode* head, int n) {
+        ListNode* dummy = new ListNode(0, head);
+        int length = getLength(head);
+        ListNode* cur = dummy;
+        for (int i = 1; i < length - n + 1; ++i) {
+            cur = cur->next;
+        }
+        cur->next = cur->next->next;
+        ListNode* ans = dummy->next;
+        delete dummy;
+        return ans;
+    }
+};
+```
+
+## 16. [面试题 02.02. 返回倒数第 k 个节点](https://leetcode.cn/problems/kth-node-from-end-of-list-lcci/)
+
++ 题目
+
+> ​	实现一种算法，找出单向链表中倒数第 k 个节点。返回该节点的值。
+
++ 思路
+  + 使用快慢指针，先使用快指针遍历n个节点，然后快慢指针同步遍历到快指针到nullptr。慢指针的位置就是k节点的位置。
++ 题解：
+
+```cpp
+class Solution {
+public:
+    int kthToLast(ListNode* head, int k) {
+        ListNode* slow = head;
+        ListNode* fast = head;
+        while(k != 0){
+            fast = fast->next;
+            k--;
+        }
+        while(fast != nullptr){
+            if(slow == nullptr){
+                slow = head;
+            }else{
+                slow = slow->next;
+            }
+            fast = fast->next;
+        }
+        return slow->val;
+    }
+};
+```
+
+## 17. [232. 用栈实现队列](https://leetcode.cn/problems/implement-queue-using-stacks/)
+
++ 题目
+
+> ​	请你仅使用两个栈实现先入先出队列。队列应当支持一般队列支持的所有操作（`push`、`pop`、`peek`、`empty`）：
+	实现 `MyQueue` 类：
+	- `void push(int x)` 将元素 x 推到队列的末尾
+	- `int pop()` 从队列的开头移除并返回元素
+	- `int peek()` 返回队列开头的元素
+	- `boolean empty()` 如果队列为空，返回 `true` ；否则，返回 `false`
+	**说明：**
+	- 你 **只能** 使用标准的栈操作 —— 也就是只有 `push to top`, `peek/pop from top`, `size`, 和 `is empty` 操作是合法的。
+	- 你所使用的语言也许不支持栈。你可以使用 list 或者 deque（双端队列）来模拟一个栈，只要是标准的栈操作即可。
+
++ 思路
+	+ 将一个栈当作输入栈，用于压入 push 传入的数据；另一个栈当作输出栈，用于 pop 和 peek 操作。
+	+ 每次 pop 或 peek 时，若输出栈为空则将输入栈的全部数据依次弹出并压入输出栈，这样输出栈从栈顶往栈底的顺序就是队列从队首往队尾的顺序。
++ 题解
+```cpp
+class MyQueue {
+private:
+    stack<int> inStack, outStack;
+
+    void in2out() {
+        while (!inStack.empty()) {
+            outStack.push(inStack.top());
+            inStack.pop();
+        }
+    }
+
+public:
+    MyQueue() {}
+
+    void push(int x) {
+        inStack.push(x);
+    }
+
+    int pop() {
+        if (outStack.empty()) {
+            in2out();
+        }
+        int x = outStack.top();
+        outStack.pop();
+        return x;
+    }
+
+    int peek() {
+        if (outStack.empty()) {
+            in2out();
+        }
+        return outStack.top();
+    }
+
+    bool empty() {
+        return inStack.empty() && outStack.empty();
+    }
+};
+
+```
+## 18. [94. 二叉树的中序遍历](https://leetcode.cn/problems/binary-tree-inorder-traversal/)
++ 题目
+	+ 给定一个二叉树的根节点 `root` ，返回 _它的 **中序** 遍历_ 。
++ 思路
+	+ 递归
+	+ 迭代；使用一个栈来存储前面遍历过的节点，用于回溯的时候可以返回即可。
++ 题解1
+```cpp
+class Solution {
+public:
+    vector<int> inorderTraversal(TreeNode* root) {
+        vector<int> res;
+        MidTree(root,res);
+        return res;
+    }
+
+    void MidTree(TreeNode* root , vector<int>& res){
+        if(root == nullptr) return;
+        MidTree(root->left, res);
+        res.push_back(root->val);
+        MidTree(root->right, res);
+    }
+};
+```
+
++ 题解2
+```cpp
+class Solution {
+public: 
+	vector<int> inorderTraversal(TreeNode* root) { 
+		vector<int> res; 
+		stack<TreeNode*> stk; 
+		while (root != nullptr || !stk.empty()) { 
+			while (root != nullptr) { 
+			stk.push(root); 
+			root = root->left; 
+		} 
+		root = stk.top(); 
+		stk.pop(); 
+		res.push_back(root->val); 
+		root = root->right;
+		} 
+		return res; 
+	}
+}; 
+```
+## 19.[144. 二叉树的前序遍历](https://leetcode.cn/problems/binary-tree-preorder-traversal/)
++ 题目
+	+ 给你二叉树的根节点 `root` ，返回它节点值的 **前序** 遍历。
++ 思路
+	+ 递归
+	+ 迭代
+	+ 有一种巧妙的方法可以在线性时间内，只占用常数空间来实现前序遍历。这种方法由 J. H. Morris 在 1979 年的论文「Traversing Binary Trees Simply and Cheaply」中首次提出，因此被称为 Morris 遍历。Morris 遍历的核心思想是利用树的大量空闲指针，实现空间开销的极限缩减。其前序遍历规则总结如下：
+		+ 新建临时节点，令该节点为 root；
+		+ 如果当前节点的左子节点为空，将当前节点加入答案，并遍历当前节点的右子节点；
+		+ 如果当前节点的左子节点不为空，在当前节点的左子树中找到当前节点在中序遍历下的前驱节点：
+		+ 如果前驱节点的右子节点为空，将前驱节点的右子节点设置为当前节点。然后将当前节点加入答案，并将前驱节点的右子节点更新为当前节点。当前节点更新为当前节点的左子节点。
+		+ 如果前驱节点的右子节点为当前节点，将它的右子节点重新设为空。当前节点更新为当前节点的右子节点。
+		+ 重复步骤 2 和步骤 3，直到遍历结束。
+	+ 这样我们利用 Morris 遍历的方法，前序遍历该二叉树，即可实现线性时间与常数空间的遍历。
++ 题解1
+```cpp
+class Solution {
+public:
+    void leftTreeNode(TreeNode* root, vector<int>& res){
+        if(root == nullptr)return;
+        res.push_back(root->val);
+        leftTreeNode(root->left,res);
+        leftTreeNode(root->right,res);
+    }
+    vector<int> preorderTraversal(TreeNode* root) {
+        vector<int> res;
+        leftTreeNode(root, res);
+        return res;
+    } 
+};
+```
++ 题解2
+```cpp
+class Solution {
+public:
+    vector<int> preorderTraversal(TreeNode* root) {
+        vector<int> res;
+        if (root == nullptr) {
+            return res;
+        }
+
+        stack<TreeNode*> stk;
+        TreeNode* node = root;
+        while (!stk.empty() || node != nullptr) {
+            while (node != nullptr) {
+                res.emplace_back(node->val);
+                stk.emplace(node);
+                node = node->left;
+            }
+            node = stk.top();
+            stk.pop();
+            node = node->right;
+        }
+        return res;
+    }
+};
+```
++ 题解3
+```cpp
+class Solution {
+public:
+    vector<int> preorderTraversal(TreeNode *root) {
+        vector<int> res;
+        if (root == nullptr) {
+            return res;
+        }
+
+        TreeNode *p1 = root, *p2 = nullptr;
+
+        while (p1 != nullptr) {
+            p2 = p1->left;
+            if (p2 != nullptr) {
+                while (p2->right != nullptr && p2->right != p1) {
+                    p2 = p2->right;
+                }
+                if (p2->right == nullptr) {
+                    res.emplace_back(p1->val);
+                    p2->right = p1;
+                    p1 = p1->left;
+                    continue;
+                } else {
+                    p2->right = nullptr;
+                }
+            } else {
+                res.emplace_back(p1->val);
+            }
+            p1 = p1->right;
+        }
+        return res;
+    }
+};
+```
+## 20.[145. 二叉树的后序遍历](https://leetcode.cn/problems/binary-tree-postorder-traversal/)
++ 题目
+	+ 给你一棵二叉树的根节点 `root` ，返回其节点值的 **后序遍历** 。
++ 思路
+	+ 递归
+	+ 迭代
+	+ Morris 遍历
+		+ 有一种巧妙的方法可以在线性时间内，只占用常数空间来实现后序遍历。这种方法由 J. H. Morris 在 1979 年的论文「Traversing Binary Trees Simply and Cheaply」中首次提出，因此被称为 Morris 遍历。
+		+ Morris 遍历的核心思想是利用树的大量空闲指针，实现空间开销的极限缩减。其后序遍历规则总结如下：
+			+ 新建临时节点，令该节点为 root；
+			+ 如果当前节点的左子节点为空，则遍历当前节点的右子节点；
+			+ 如果当前节点的左子节点不为空，在当前节点的左子树中找到当前节点在中序遍历下的前驱节点；
+			+ 如果前驱节点的右子节点为空，将前驱节点的右子节点设置为当前节点，当前节点更新为当前节点的左子节点。
+			+ 如果前驱节点的右子节点为当前节点，将它的右子节点重新设为空。倒序输出从当前节点的左子节点到该前驱节点这条路径上的所有节点。当前节点更新为当前节点的右子节点。
+			+ 重复步骤 2 和步骤 3，直到遍历结束。
+		+ 这样我们利用 Morris 遍历的方法，后序遍历该二叉搜索树，即可实现线性时间与常数空间的遍历。
++ 题解1
+```cpp
+class Solution {
+public:
+    void postorder(TreeNode *root, vector<int> &res) {
+        if (root == nullptr) {
+            return;
+        }
+        postorder(root->left, res);
+        postorder(root->right, res);
+        res.push_back(root->val);
+    }
+
+    vector<int> postorderTraversal(TreeNode *root) {
+        vector<int> res;
+        postorder(root, res);
+        return res;
+    }
+};
+```
++ 题解2
+```cpp
+class Solution {
+public:
+    vector<int> postorderTraversal(TreeNode *root) {
+        vector<int> res;
+        if (root == nullptr) {
+            return res;
+        }
+
+        stack<TreeNode *> stk;
+        TreeNode *prev = nullptr;
+        while (root != nullptr || !stk.empty()) {
+            while (root != nullptr) {
+                stk.push(root);
+                root = root->left;
+            }
+            root = stk.top();
+            stk.pop();
+            if (root->right == nullptr || root->right == prev) {
+                res.push_back(root->val);
+                prev = root;
+                root = nullptr;
+            } else {
+                stk.push(root);
+                root = root->right;
+            }
+        }
+        return res;
+    }
+};
+```
++ 题解3
+```cpp
+class Solution {
+public:
+    void addPath(vector<int> &vec, TreeNode *node) {
+        int count = 0;
+        while (node != nullptr) {
+            ++count;
+            vec.emplace_back(node->val);
+            node = node->right;
+        }
+        reverse(vec.end() - count, vec.end());
+    }
+
+    vector<int> postorderTraversal(TreeNode *root) {
+        vector<int> res;
+        if (root == nullptr) {
+            return res;
+        }
+
+        TreeNode *p1 = root, *p2 = nullptr;
+
+        while (p1 != nullptr) {
+            p2 = p1->left;
+            if (p2 != nullptr) {
+                while (p2->right != nullptr && p2->right != p1) {
+                    p2 = p2->right;
+                }
+                if (p2->right == nullptr) {
+                    p2->right = p1;
+                    p1 = p1->left;
+                    continue;
+                } else {
+                    p2->right = nullptr;
+                    addPath(res, p1->left);
+                }
+            }
+            p1 = p1->right;
+        }
+        addPath(res, root);
+        return res;
+    }
+};
+```
+## 21.[101. 对称二叉树](https://leetcode.cn/problems/symmetric-tree/)
++ 题目：
+	+ 给你一个二叉树的根节点 `root` ， 检查它是否轴对称。
++ 思路
+	+ 
