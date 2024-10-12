@@ -802,7 +802,7 @@ public:
 ## 15. [LCR 021. 删除链表的倒数第 N 个结点](https://leetcode.cn/problems/SLwz0R/)
 + 题目
 >		给定一个链表，删除链表的倒数第 `n` 个结点，并且返回链表的头结点.
->		
+>			
 >	![image-20240927120442381](leetcode%E7%83%AD%E9%A2%98100%E5%88%B7%E9%A2%98%E8%AE%B0%E5%BD%95.assets/image-20240927120442381-17274098846841.png)
 
 + 思路
@@ -1209,4 +1209,190 @@ public:
 + 题目：
 	+ 给你一个二叉树的根节点 `root` ， 检查它是否轴对称。
 + 思路
-	+ 
+	+ 利用对称性和左的左和右的右，右的左和左的右对称关系直接递归判断。
+	+ 方法1中我们用递归的方法实现了对称性的判断，那么如何用迭代的方法实现呢？首先我们引入一个队列，这是把递归程序改写成迭代程序的常用方法。初始化时我们把根节点入队两次。每次提取两个结点并比较它们的值（队列中每两个连续的结点应该是相等的，而且它们的子树互为镜像），然后将两个结点的左右子结点按相反的顺序插入队列中。当队列为空时，或者我们检测到树不对称（即从队列中取出两个不相等的连续结点）时，该算法结束。
++ 题解：
+
+```cpp
+class Solution {
+public:
+    bool isSymmetric(TreeNode* root) {
+        if(!root->left && !root->right){
+            return true;
+        }
+        if(!root->left || !root->right){
+            return false;
+        }
+        return banduan(root->left,root->right);
+    }
+    bool banduan(TreeNode* left, TreeNode* right){
+        if(left == nullptr && right == nullptr){
+            return true;
+        }
+        if(left == nullptr || right == nullptr){
+            return false;
+        }
+        if(left->val != right->val){
+            return false;
+        }
+        return banduan(left->left,right->right) && banduan(left->right, right->left);
+    }
+};
+```
+
++ 题解2（非递归）
+
+```cpp
+class Solution {
+public:
+    bool isSymmetric(TreeNode* root) {
+        queue <TreeNode*> q;
+        q.push(root->left);
+        q.push(root->right);
+        while(!q.empty()){
+            TreeNode* l = q.front(); q.pop();
+            TreeNode* r = q.front(); q.pop();
+
+            if(!l && !r){
+                continue;
+            }
+            if(!l || !r || (l->val != r->val)){
+                return false;
+            }
+            q.push(l->left);
+            q.push(r->right);
+            q.push(l->right);
+            q.push(r->left);
+        }
+        return true;
+    }
+};
+```
+
+## 22. [104. 二叉树的最大深度](https://leetcode.cn/problems/maximum-depth-of-binary-tree/)
+
++ 题目
+  + 给定一个二叉树 `root` ，返回其最大深度。
+  + 二叉树的 **最大深度** 是指从根节点到最远叶子节点的最长路径上的节点数。
++ 思路
+  + 直接使用递归，返回下一节点+1的长度。（也就是深度优先搜索）
+  + 非递归就使用队列来完成存储。（也就是广度优先搜索）
++ 题解：
+
+```cpp
+class Solution {
+public:
+    int maxDepth(TreeNode* root) {
+        if(root==NULL) return 0;
+        int l=maxDepth(root->left);
+        int r=maxDepth(root->right);
+        return max(l,r)+1;
+    }
+};
+```
+
++ 题解2：
+
+```cpp
+class Solution {
+public:
+    int maxDepth(TreeNode* root) {
+        if (root == nullptr) return 0;
+        queue<TreeNode*> Q;
+        Q.push(root);
+        int ans = 0;
+        while (!Q.empty()) {
+            int sz = Q.size();
+            while (sz > 0) {
+                TreeNode* node = Q.front();Q.pop();
+                if (node->left) Q.push(node->left);
+                if (node->right) Q.push(node->right);
+                sz -= 1;
+            }
+            ans += 1;
+        } 
+        return ans;
+    }
+};
+```
+
+## 23.[110. 平衡二叉树](https://leetcode.cn/problems/balanced-binary-tree/)
+
++ 题目
+  + 给定一个二叉树，判断它是否是 平衡二叉树 
+  + **平衡二叉树** 是指该树所有节点的左右子树的深度相差不超过 1。
++ 思路：
+  + 前言：
+    + 这道题中的平衡二叉树的定义是：二叉树的每个节点的左右子树的高度差的绝对值不超过 1，则二叉树是平衡二叉树。根据定义，一棵二叉树是平衡二叉树，当且仅当其所有子树也都是平衡二叉树，因此可以使用递归的方式判断二叉树是不是平衡二叉树，递归的顺序可以是自顶向下或者自底向上。
+    + height(*p*)如果为空返回0，否则返回$max(height(p->left),height(p->right))+1$
+  + 自顶向下的递归：
+    + 具体做法类似于二叉树的前序遍历，即对于当前遍历到的节点，首先计算左右子树的高度，如果左右子树的高度差是否不超过 1，再分别递归地遍历左右子节点，并判断左子树和右子树是否平衡。这是一个自顶向下的递归的过程。
+  + 自底向上的递归:
+    + 如果使用自底向上的做法，则对于每个节点，函数 height 只会被调用一次。
+    + 自底向上递归的做法类似于后序遍历，对于当前遍历到的节点，先递归地判断其左右子树是否平衡，再判断以当前节点为根的子树是否平衡。如果一棵子树是平衡的，则返回其高度（高度一定是非负整数），否则返回 −1。如果存在一棵子树不平衡，则整个二叉树一定不平衡。
++ 题解1：
+
+```cpp
+class Solution {
+public:
+    bool isBalanced(TreeNode* root) {
+        if(root == nullptr){
+            return true;
+        }else{
+            return abs(height(root->left) - height(root->right)) <= 1 && 
+            isBalanced(root->left) && isBalanced(root->right);
+        }
+    }
+    int height(TreeNode* root){
+        if(root == nullptr){
+            return 0;
+        }else{
+            return max(height(root->left),height(root->right))+1;
+        }
+    }
+};
+```
+
++ 题解2：
+
+```cpp
+class Solution {
+public:
+    int getHeight(TreeNode* cur)
+    {
+        if(!cur)return 0;
+        int leftHeight=getHeight(cur->left);
+        if(leftHeight==-1)return -1;
+        int rightHeight=getHeight(cur->right);
+        if(rightHeight==-1)return -1;
+        return abs(leftHeight-rightHeight)>1?-1:max(leftHeight,rightHeight)+1;
+    }
+    bool isBalanced(TreeNode* root) {
+        return getHeight(root)==-1 ? false:true;
+    }
+};
+```
+
+## 24.[226. 翻转二叉树](https://leetcode.cn/problems/invert-binary-tree/)
+
++ 题目：
+  + 给你一棵二叉树的根节点 `root` ，翻转这棵二叉树，并返回其根节点。
++ 思路
+  + 直接使用递归。
+
++ 题解1：
+
+```cpp
+class Solution {
+public:
+    TreeNode* invertTree(TreeNode* root) {
+        if(root == nullptr) return nullptr;        
+        invertTree(root->left);
+        invertTree(root->right);
+        swap(root->left, root->right);
+        return root;
+    }
+};
+```
+
+## 25. 
